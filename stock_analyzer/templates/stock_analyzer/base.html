@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        header {text-align: center;}
+        body {text-align: center;}
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>   
+        <h1>Stock 1.0</h1>
+        {% if user.username %}
+        <p>
+            <a href="{% url 'get_stock' %}">Add Ticker</a> - 
+            <a href="{% url 'tickers' %}">Ticker List</a> - 
+            <a href="{% url 'logout' %}">Logout</a> - 
+        </p>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> - 
+            <a href="{% url 'signup' %}">Register</a> - 
+        {% endif %}
+    </header>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

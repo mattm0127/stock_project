@@ -1,0 +1,28 @@
+{% extends 'stock_analyzer/base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'stock_analyzer/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {% for ticker in object_list %}
+            
+            <li>
+            {{ticker.stock_ticker|upper}}
+            <ul>
+                <li><a href="{% url 'graph_show' ticker.stock_ticker %}">Five Year Full</a></li>
+                <li><a href="{% url 'split_show' ticker.stock_ticker %}">Five Year Split</a></li>
+            </ul>
+            </li>
+            
+            {% endfor %}
+        
+        </ul>
+
+
+    </div>
+    
+{% endblock %}
