@@ -7,6 +7,7 @@
 
 {% block content %}
     <div>
+        <p><a href="{% url 'compare_select' %}">Compare</a></p>
         <ul>
             {% for ticker in object_list %}
             
@@ -21,7 +22,6 @@
             {% endfor %}
         
         </ul>
-
 
     </div>
     

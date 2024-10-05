@@ -1,0 +1,11 @@
+{% extends 'stock_analyzer/base.html' %}
+{% load static %}
+
+{% block content %}
+    {% for graph in graphs %}
+    <div>
+        {{graph|safe}}
+    </div>
+    {% endfor %}
+{% endblock %}
+
