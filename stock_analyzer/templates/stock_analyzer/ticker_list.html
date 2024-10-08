@@ -3,6 +3,9 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'stock_analyzer/style.css' %}">
+    <style>
+        body {text-align: center;}
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -14,8 +17,8 @@
             <li>
             {{ticker.stock_ticker|upper}}
             <ul>
-                <li><a href="{% url 'graph_show' ticker.stock_ticker %}">Five Year Full</a></li>
-                <li><a href="{% url 'split_show' ticker.stock_ticker %}">Five Year Split</a></li>
+                <li><a href="{% url 'five_year' ticker.stock_ticker %}">Five Year Full</a></li>
+                <li><a href="{% url 'five_year_split' ticker.stock_ticker %}">Five Year Split</a></li>
             </ul>
             </li>
             

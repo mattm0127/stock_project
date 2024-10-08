@@ -1,0 +1,28 @@
+{% extends 'stock_analyzer/base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'stock_analyzer/style.css' %}"/>
+{% endblock %}
+
+
+{% block content %}
+    <div>
+        <h3>Your Stock List</h3>
+        <p><a href="{% url 'get_stock' %}">Add Ticker</a> - <a href="{% url 'compare_select' %}">Compare</a></p>
+        <ul>
+            {% for stock in user_stocks %}
+                <li>{{stock.stock_ticker|upper}}
+                    <ul>
+                        <li><a href="{% url 'five_year' stock.stock_ticker %}">Five Year Graph</a></li>
+                        <li><a href="{% url 'five_year_split' stock.stock_ticker %}">Five Year Split</a></li>
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </div> 
+    <div>
+    <h3>Your Portfolio</h3>
+    </div>
+
+{% endblock %}

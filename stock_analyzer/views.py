@@ -19,12 +19,6 @@ import plotly.express as px
 
 
 # Functions for Views
-def get_stock_df(stock_ticker):
-    """Creates the dataframe based off the stock ticker input."""
-    ticker = CompanyTicker.objects.get(stock_ticker=str(stock_ticker).lower())
-    stocks = StockDataframe.objects.filter(stock_ticker_id=ticker.id).values()
-    df = pd.DataFrame(stocks)
-    return df
 
 def check_company_tickers(stock_ticker):
     """Checks if the ticker is already stored in the database."""
@@ -35,18 +29,61 @@ def check_company_tickers(stock_ticker):
     else:
         return False
 
+def get_stock_df(stock_ticker):
+    """Creates the dataframe based off the stock ticker input."""
+    ticker = CompanyTicker.objects.get(stock_ticker=str(stock_ticker).lower())
+    stocks = StockDataframe.objects.filter(stock_ticker_id=ticker.id).values()
+    df = pd.DataFrame(stocks)
+    return df
+
+def get_stock_df_yearly(stock_ticker):
+    """Create dataframes by year for a specific stock."""
+    df = get_stock_df(stock_ticker)
+    df['year'] = df.date.apply(lambda x: x.strftime('%Y'))
+    year_list = list(df.year.unique())
+    yearly_dataframes = [df.close.max()]
+    for year in year_list:
+        year_df = df[df.year == year]
+        yearly_dataframes.append(year_df)
+    return yearly_dataframes
+
 def create_five_year_graph(stock_ticker):
+    """Plots five years worth of data onto a single graph for a single stock."""
     title = f'Five Year Data for {str(stock_ticker).upper()}'
     df = get_stock_df(stock_ticker)
     plot = px.line(df, x='date', y='close', title=title)
     return plot.to_html(full_html=False)
 
+def create_five_year_split(stock_ticker, yearly_dataframes):
+    """Plots the yearly dataframes onto a graph, takes get_stock_df_yearly function as an arg."""
+    graphs = []
+    for x in range(1, len(yearly_dataframes)):
+        title = f"{yearly_dataframes[x].year.iloc[0]} Data for {stock_ticker}"
+        plot = px.line(yearly_dataframes[x], x='date', y='close', title=title, height=425,width=750)
+        plot.update_layout(yaxis_range=[0, yearly_dataframes[0]])
+        graphs.append(plot.to_html(full_html=False))
+    return graphs
+
 # Views
+
+def homepage(request):
+    return render(request, 'stock_analyzer/home.html')
+
 class SignUp(CreateView):
     """Create a new user form."""
     form_class = UserCreationForm
     template_name = "registration/signup.html"
     success_url = reverse_lazy('login')
+
+@login_required
+def hub_view(request):
+    """Displays the users tracked stocks and portfolio."""
+    user = request.user
+    user_stocks = list(CompanyTicker.objects.filter(users=user))
+    context = {
+            'user_stocks': user_stocks,
+            }
+    return render(request, 'stock_analyzer/hub.html', context=context)
 
 class TickerListView(LoginRequiredMixin, ListView):
     """View list of all available stock tickers."""
@@ -56,9 +93,6 @@ class TickerListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         return CompanyTicker.objects.filter(users=user)
-
-def homepage(request):
-    return render(request, 'stock_analyzer/home.html')
 
 @login_required #This still needs to be cleaned up more.
 def get_stock_view(request):
@@ -90,31 +124,19 @@ def get_stock_view(request):
 
 @login_required
 def individual_fiveyear_view(request, stock_ticker):
+    """Sends single stock five year graph to template"""
     context = {'graph': create_five_year_graph(stock_ticker)}
     return render(request, 'stock_analyzer/stock_graph.html', context)
 
-@login_required # Take the graphing function out of the view
+@login_required 
 def individual_split_view(request, stock_ticker):
-    df = get_stock_df(stock_ticker)
-    df['year'] = df.date.apply(lambda x: x.strftime('%Y'))
-    year_list = list(df.year.unique())
-    yearly_dataframes = []
-    for year in year_list:
-        year_df = df[df.year == year]
-        yearly_dataframes.append(year_df)
-
-    context = {}
-    for x in range(len(yearly_dataframes)):
-        df_year = yearly_dataframes[x].year.iloc[0]
-        title = f'{df_year} Data for {stock_ticker.upper()}'
-        plot = px.line(yearly_dataframes[x], x='date', y='close', title=title, height=425,width=750)
-        plot.update_layout(yaxis_range=[0, df.close.max()])
-        graph = plot.to_html(full_html=False)
-        context[f"graph_{x}"] = graph
-    return render(request, 'stock_analyzer/split_graph.html', context)
+    """Sends five year data split graphs to template."""
+    context = {'graphs': create_five_year_split(stock_ticker, get_stock_df_yearly(stock_ticker))}
+    return render(request, 'stock_analyzer/split_graph.html', context=context)
 
 @login_required
 def compare_tickers_view(request):
+    """Accepts user form input for stocks to compare, creates five year graph, and redirects to compare page."""
     user = request.user
     if request.method == "POST":
         form = TickerCompareForm(request.POST)

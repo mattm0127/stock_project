@@ -44,3 +44,5 @@ class StockDataframe(models.Model):
         self.stock_splits = df['Stock Splits'].iloc[row]
         self.save()
         return 
+
+#PortfolioModel - Stock ticker, initial invest., current value, gain/loss

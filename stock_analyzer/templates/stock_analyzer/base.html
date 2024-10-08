@@ -13,6 +13,7 @@
         <h1>Stock 1.0</h1>
         {% if user.username %}
         <p>
+            <a href="{% url 'hub' %}">Home</a> - 
             <a href="{% url 'get_stock' %}">Add Ticker</a> - 
             <a href="{% url 'tickers' %}">Ticker List</a> - 
             <a href="{% url 'logout' %}">Logout</a> - 

@@ -125,7 +125,7 @@ STATIC_URL = 'static/'
 
 # Redirect the user after login and logout
 LOGIN_URL= '/account/login' # Must set this for mixins and decorators to work properly
-LOGIN_REDIRECT_URL = '/stock' # will redirect users to stock input from login view (LoginView)
+LOGIN_REDIRECT_URL = '/hub' # will redirect users to stock input from login view (LoginView)
 
 
 # Clear the session after a user closes the browser window.

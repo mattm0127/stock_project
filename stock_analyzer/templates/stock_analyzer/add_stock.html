@@ -1,5 +1,11 @@
 {% extends 'stock_analyzer/base.html' %}
 
+{% block head %}
+    <style>
+        body {text-align: center}
+    </style>
+{% endblock %}
+
 {% block content %}
 <form method="POST">
     {% csrf_token %}
